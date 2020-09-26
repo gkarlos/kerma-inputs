@@ -1,0 +1,73 @@
+>b+tree:
+__global__ void findRangeK(	long height, knode *knodesD, long knodes_elem, long *currKnodeD, long *offsetD, long *lastKnodeD, long *offset_2D, int *startD, int *endD, int *RecstartD, int *ReclenD)
+__global__ void findK( long height, knode *knodesD, long knodes_elem, record *recordsD, long *currKnodeD, long *offsetD, int *keysD, record *ansD)
+>backprop:
+__global__ void bpnn_layerforward_CUDA( float *input_cuda, float *output_hidden_cuda, float *input_hidden_cuda, float *hidden_partial_sum, int in, int hid)
+__global__ void bpnn_adjust_weights_cuda( float * delta, int hid, float * ly, int in, float * w, float * oldw)
+>bfs:
+__global__ void Kernel( Node* g_graph_nodes, int* g_graph_edges, bool* g_graph_mask, bool* g_updating_graph_mask, bool *g_graph_visited, int* g_cost, int no_of_nodes)
+__global__ void Kernel2( bool* g_graph_mask, bool *g_updating_graph_mask, bool* g_graph_visited, bool *g_over, int no_of_nodes)
+>cfd:
+__global__ void cuda_compute_flux( int nelr, int* elements_surrounding_elements, float* normals, float* variables, float* fc_momentum_x, float* fc_momentum_y, float* fc_momentum_z, float* fc_density_energy, float* fluxes)
+__global__ void cuda_time_step( int j, int nelr, float* old_variables, float* variables, float* step_factors, float* fluxes)
+__global__ void cuda_initialize_variables( int nelr, float* variables)
+__global__ void cuda_compute_step_factor( int nelr, float* variables, float* areas, float* step_factors)
+__global__ void cuda_compute_flux_contributions( int nelr, float* variables, float* fc_momentum_x, float* fc_momentum_y, float* fc_momentum_z, float* fc_density_energy)
+>dwt2d:
+__global__ void c_CopySrcToComponents( T *d_r, T *d_g, T *d_b, unsigned char * d_src, int pixels)
+__global__ void c_CopySrcToComponent( T *d_c, unsigned char * d_src, int pixels)
+>gaussian:
+__global__ void Fan1( float *m_cuda, float *a_cuda, int Size, int t)
+__global__ void Fan2( float *m_cuda, float *a_cuda, float *b_cuda,int Size, int j1, int t)
+>heartwell:
+__global__ void kernel()
+>hotspot:
+__global__ void calculate_temp( int iteration, float *power, float *temp_src, float *temp_dst, int grid_cols, int grid_rows, int border_cols, int border_rows, float Cap, float Rx, float Ry, float Rz, float step, float time_elapsed)
+>hybridsort:
+__global__ void bucketcount( float *input, int *indice, unsigned int *d_prefixoffsets, int size)
+__global__ void bucketprefixoffset( unsigned int *d_prefixoffsets, unsigned int *d_offsets, int blocks)
+__global__ void bucketsort( float *input, int *indice, float *output, int size, unsigned int *d_prefixoffsets, unsigned int *l_offsets)
+__global__ void histogram1024Kernel( unsigned int *d_Result, float *d_Data, float minimum, float maximum, int dataN)
+__global__ void mergeSortFirst( float4 *result, int listsize)
+__global__ void mergeSortPass( float4 *result, int nrElems, int threadsPerDiv)
+__global__ void mergepack( float *orig, float *result)
+>kmeans:
+__global__ void invert_mapping( float *input, float *output, int npoints, int nfeatures)
+__global__ void kmeansPoint( float *features, int nfeatures, int npoints, int nclusters, int *membership, float *clusters, float *block_clusters, int *block_deltas)
+>lavaMD:
+__global__ void kernel_gpu_cuda( par_str d_par_gpu, dim_str d_dim_gpu, box_str* d_box_gpu, FOUR_VECTOR* d_rv_gpu, fp* d_qv_gpu, FOUR_VECTOR* d_fv_gpu)
+>leukocyte:
+__global__ void GICOV_kernel( int grad_m, float *gicov)
+__global__ void dilate_kernel( int img_m, int img_n, int strel_m, int strel_n, float *dilated)
+>lud:
+__global__ void lud_diagonal( float *m, int matrix_dim, int offset)
+__global__ void lud_perimeter( float *m, int matrix_dim, int offset)
+__global__ void lud_internal( float *m, int matrix_dim, int offset)
+>mummergpu: <all>
+__global__ void mummergpuKernel( void* match_coords, int* coordAddrs, int/char* coordAddrs, _PixelOfNode* nodes, _PixelOfChildren* childrenarr, char* ref, const int* queryAddrs, const int* queryLengths, const int numQueries, const int min_match_len, int* node_hist, int* child_hist)
+__global__ void mummergpuRCKernel(MatchCoord* match_coords, char* queries, const int* queryAddrs, const int* queryLengths, const int numQueries, const int min_match_len)
+__global__ void printKernel( MatchInfo * matches, int totalMatches, Alignment * alignments, int  * queries, char * queries, _PixelOfNode* nodes, _PixelOfChildren* childrenarr, const int *queryAddrs, const int * queryLengths, const int page_begin, const int page_end, const int page_shadow_left, const int page_shadow_right, const int min_match_length, int* node_hist, int* child_hist)
+>myocyte:
+__global__ void kernel(	int timeinst, fp* d_initvalu, fp* d_finavalu, fp* d_params, fp* d_com)
+__global__ void solver_2( int workload, int xmax, fp* x, fp* y, fp* params, fp* com, fp* err, fp* scale, fp* yy, fp* initvalu_temp, fp* finavalu_temp)
+>nn:
+__global__ void euclid(LatLong *d_locations, float *d_distances, int numRecords,float lat, float lng)
+>nw:
+__global__ void needle_cuda_shared_1( int* referrence, int* matrix_cuda, int cols, int penalty, int i, int block_width)
+__global__ void needle_cuda_shared_2(  int* referrence, int* matrix_cuda, int cols, int penalty, int i, int block_width)
+>particlefilter:
+__global__ void find_index_kernel( double * arrayX, double * arrayY, double * CDF, double * u, double * xj, double * yj, double * weights, int Nparticles)
+__global__ void normalize_weights_kernel( double * weights, int Nparticles, double* partial_sums, double * CDF, double * u, int * seed)
+__global__ void sum_kernel(double* partial_sums, int Nparticles)
+__global__ void likelihood_kernel(double * arrayX, double * arrayY, double * xj, double * yj, double * CDF, int * ind, int * objxy, double * likelihood, unsigned char * I, double * u, double * weights, int Nparticles, int countOnes, int max_size, int k, int IszY, int Nfr, int *seed, double* partial_sums)
+>pathfinder:
+__global__ void dynproc_kernel( int iteration, int *gpuWall, int *gpuSrc, int *gpuResults, int cols, int rows, int startStep, int border)
+>srad:
+__global__ void compress( long d_Ne, fp *d_I)
+__global__ void extract( long d_Ne,	fp *d_I)
+__global__ void prepare( long d_Ne,	fp *d_I, fp *d_sums, fp *d_sums2)
+__global__ void reduce(	long d_Ne, int d_no, int d_mul, fp *d_sums, fp *d_sums2)
+__global__ void srad( fp d_lambda, int d_Nr, int d_Nc, long d_Ne, int *d_iN, int *d_iS, int *d_jE, int *d_jW, fp *d_dN, fp *d_dS, fp *d_dE, fp *d_dW, fp d_q0sqr, fp *d_c, fp *d_I)
+__global__ void srad2( fp d_lambda,	int d_Nr, int d_Nc, long d_Ne, int *d_iN, int *d_iS, int *d_jE,	int *d_jW, fp *d_dN, fp *d_dS, fp *d_dE, fp *d_dW, fp *d_c, fp *d_I)
+>streamcluster:
+__global__ void kernel_compute_cost( int num, int dim, long x, Point *p, int K, int stride, float *coord_d, float *work_mem_d, int *center_table_d, bool *switch_membership_d)
