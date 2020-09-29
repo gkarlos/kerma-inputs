@@ -1,6 +1,3 @@
-
-
-// includes, system
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +5,7 @@
 
 #ifdef __NVCC__
   #include <cuda.h>
+  #include <cuda_runtime.h>
 #else
   #include <__clang_cuda_runtime_wrapper.h>
 #endif
@@ -26,7 +24,6 @@
 #define NUM_THREAD 4  //OpenMP threads
 
 #define ABS(x) (((x) > 0.0) ? (x) : (-(x)))
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -100,15 +97,14 @@ extern "C" __global__ void bpnn_layerforward_CUDA(float *input_cuda,
 /*
   for ( unsigned int i = 2 ; i <= HEIGHT ; i *= 2){
     unsigned int power_two = i - 1;
-    
     if( (ty & power_two) == 0 ) {
       weight_matrix[ty][tx] = weight_matrix[ty][tx] + weight_matrix[ty + power_two/2][tx];
     }
    }
 */
-  
+
   __syncthreads();
-  
+
   if ( tx == 0 ) {
     hidden_partial_sum[by * hid + ty] = weight_matrix[tx][ty];
   }
@@ -392,7 +388,7 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
 
   cudaMemcpy(input_cuda, net->input_units, (in + 1) * sizeof(float), cudaMemcpyHostToDevice);
   cudaMemcpy(input_hidden_cuda, input_weights_one_dim, (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice);
-  
+
   bpnn_layerforward_CUDA <<<grid, threads>>>( input_cuda,
                                               output_hidden_cuda,
                                               input_hidden_cuda,
