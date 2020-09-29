@@ -210,16 +210,15 @@ extern "C" void bpnn_adjust_weights(float *delta, int ndelta, float *ly, int nly
 
 #ifdef OPEN
   omp_set_num_threads(NUM_THREAD);
-  #pragma omp parallel for         \
-            shared(oldw, w, delta) \
-	          private(j, k, new_dw)  \
-	          firstprivate(ndelta, nly, momentum)
+  #pragma omp parallel for shared(oldw, w, delta) \
+                           private(j, k, new_dw)  \
+                           firstprivate(ndelta, nly, momentum)
 #endif
   for (j = 1; j <= ndelta; j++) {
     for (k = 0; k <= nly; k++) {
       new_dw = ((ETA * delta[j] * ly[k]) + (MOMENTUM * oldw[k][j]));
-	    w[k][j] += new_dw;
-	    oldw[k][j] = new_dw;
+      w[k][j] += new_dw;
+      oldw[k][j] = new_dw;
     }
   }
 }
@@ -291,11 +290,11 @@ extern "C" void bpnn_randomize_weights(float **w, int m, int n) {
   }
 }
 
-extern "C" void bpnn_randomize_row(float *w, int m){
-	int i;
-	for (i = 0; i <= m; i++) {
+extern "C" void bpnn_randomize_row(float *w, int m) {
+  int i;
+  for (i = 0; i <= m; i++) {
     //w[i] = (float) rand()/RAND_MAX;
-	  w[i] = 0.1;
+    w[i] = 0.1;
   }
 }
 
@@ -334,8 +333,8 @@ extern "C" void load(BPNN *net) {
 
   int k = 1;
   for (int i = 0; i < nr; i++) {
-	  units[k] = (float) rand() / (float) RAND_MAX ;
-	  k++;
+    units[k] = (float) rand() / (float) RAND_MAX ;
+    k++;
   }
 }
 
@@ -371,9 +370,9 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   // this preprocessing stage is added to correct the bugs of wrong memcopy using two-dimensional net->inputweights
   for (int k = 0; k <= in; k++) {
     for (int j = 0; j <= hid; j++) {
-	    input_weights_one_dim[m] = net->input_weights[k][j];
-	    input_weights_prev_one_dim[m] = net-> input_prev_weights[k][j];
-	    m++;
+      input_weights_one_dim[m] = net->input_weights[k][j];
+      input_weights_prev_one_dim[m] = net-> input_prev_weights[k][j];
+      m++;
     }
   }
 
@@ -393,22 +392,23 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
 
   cudaMemcpy(input_cuda, net->input_units, (in + 1) * sizeof(float), cudaMemcpyHostToDevice);
   cudaMemcpy(input_hidden_cuda, input_weights_one_dim, (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice);
-
+  
   bpnn_layerforward_CUDA <<<grid, threads>>>( input_cuda,
-	                                            output_hidden_cuda,
-											                        input_hidden_cuda,
-											                        hidden_partial_sum,
-											                        in,
-											                        hid);
+                                              output_hidden_cuda,
+                                              input_hidden_cuda,
+                                              hidden_partial_sum,
+                                              in,
+                                              hid);
 
   // cudaThreadSynchronize();
   cudaDeviceSynchronize();
 
   cudaError_t error = cudaGetLastError();
-	if (error != cudaSuccess) {
-		printf("bpnn kernel error: %s\n", cudaGetErrorString(error));
-		exit(EXIT_FAILURE);
-	}
+
+  if (error != cudaSuccess) {
+    printf("bpnn kernel error: %s\n", cudaGetErrorString(error));
+    exit(EXIT_FAILURE);
+  }
 
   cudaMemcpy(partial_sum, hidden_partial_sum, num_blocks * WIDTH * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -442,14 +442,12 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaMemcpy(input_hidden_cuda, input_weights_one_dim, (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice);
 
 
-  bpnn_adjust_weights_cuda<<< grid, threads >>>(
-                        hidden_delta_cuda,
-												hid,
-												input_cuda,
-												in,
-												input_hidden_cuda,
-												input_prev_weights_cuda
-												);
+  bpnn_adjust_weights_cuda<<< grid, threads >>>(hidden_delta_cuda,
+                                                hid,
+                                                input_cuda,
+                                                in,
+                                                input_hidden_cuda,
+                                                input_prev_weights_cuda);
 
   cudaDeviceSynchronize();
 
