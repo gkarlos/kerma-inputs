@@ -1,12 +1,13 @@
-include ../../common/make.config
-
-# original Rodinia CC flags
 CC_FLAGS = -g -O2
+
+NAME=backprop
 
 SM=30
 CC=30
 
 .PHONY: check-env clang clean nvcc
+
+all: nvcc clang
 
 check-env:
 ifndef LLVM_HOME
@@ -16,16 +17,12 @@ ifndef CUDA_HOME
 	$(error CUDA_HOME is undefined)
 endif
 
-all: nvcc clang
-
 clean:
-	rm -f backprop.nvcc backprop.clang
+	rm -f ${NAME}.nvcc ${NAME}.clang
 
 nvcc:
-	nvcc backprop.cu -o backprop.nvcc
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
 
 clang: check-env
-	${LLVM_HOME}/bin/clang++ backprop.cu --cuda-gpu-arch=sm_$(SM) -o backprop.clang \
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
 		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \
-
-
