@@ -1,24 +1,31 @@
-include ../../common/make.config
+# original Rodinia CC flags
+CC_FLAGS = -g -O2
 
-CC := $(CUDA_DIR)/bin/nvcc
+NAME=bfs
 
-INCLUDE := $(CUDA_DIR)/include
+SM=30
+CC=30
 
-SRC = bfs.cu
+.PHONY: check-env clang clean nvcc
 
-EXE = bfs
+all: nvcc clang
 
-release: $(SRC)
-	$(CC) $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
+endif
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
+endif
 
-enum: $(SRC)
-	$(CC) -deviceemu $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+clean:
+	rm -f ${NAME}.nvcc ${NAME}.clang
 
-debug: $(SRC)
-	$(CC) -g $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
 
-debugenum: $(SRC)
-	$(CC) -g -deviceemu $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \
 
-clean: $(SRC)
-	rm -f $(EXE) $(EXE).linkinfo result.txt
+
