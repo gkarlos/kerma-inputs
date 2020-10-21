@@ -175,14 +175,14 @@ int main(int argc, char *argv[]) {
                             (time_start.tv_sec * 1000000 + time_start.tv_usec);
 
   if (verbose) {
-    printf("Matrix m is: \n");
-    PrintMat(m, Size, Size);
+    // printf("Matrix m is: \n");
+    // PrintMat(m, Size, Size);
 
-    printf("Matrix a is: \n");
-    PrintMat(a, Size, Size);
+    // printf("Matrix a is: \n");
+    // PrintMat(a, Size, Size);
 
-    printf("Array b is: \n");
-    PrintAry(b, Size);
+    // printf("Array b is: \n");
+    // PrintAry(b, Size);
   }
   BackSub();
   if (verbose) {
