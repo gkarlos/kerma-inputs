@@ -1,34 +1,30 @@
-include ../../common/make.config
+CC_FLAGS = -g -O2
 
-NVCC = $(CUDA_DIR)/bin/nvcc
+NAME=streamcluster
 
-NVCC_FLAGS = -I$(CUDA_DIR)/include
+SM=30
+CC=30
 
-TARGET_G = sc_gpu
+.PHONY: check-env clang clean nvcc
 
+all: nvcc clang
 
-# make dbg=1 tells nvcc to add debugging symbols to the binary
-ifeq ($(dbg),1)
-	NVCC_FLAGS += -g -O0
-else
-	NVCC_FLAGS += -O3
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
 endif
-
-# make emu=1 compiles the CUDA kernels for emulation
-ifeq ($(emu),1)
-	NVCC_FLAGS += -deviceemu
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
 endif
-
-# make dp=1 compiles the CUDA kernels with double-precision support
-ifeq ($(dp),1)
-	NVCC_FLAGS += --gpu-name sm_13
-endif
-
-
-$(TARGET_G): streamcluster_cuda_cpu.cpp streamcluster_cuda.cu streamcluster_header.cu
-	$(NVCC) $(NVCC_FLAGS) streamcluster_cuda_cpu.cpp streamcluster_cuda.cu streamcluster_header.cu -o $(TARGET_G) -lcuda
-	
 
 clean:
-	rm -f *.o *~ *.txt $(TARGET_G) *.linkinfo
-	
+	rm -f ${NAME}.nvcc ${NAME}.clang
+
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
+
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \
+
+
