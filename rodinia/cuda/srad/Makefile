@@ -1,19 +1,30 @@
+CC_FLAGS = -g -O2
 
-all: SRAD_V1 SRAD_V2
+NAME=srad
 
-SRAD_V1:
-	cd srad_v1; 	make
+SM=30
+CC=30
 
-SRAD_V2:
-	cd srad_v2; 	make
+.PHONY: check-env clang clean nvcc
 
-clean: SRAD_V1_clean SRAD_V2_clean
+all: nvcc clang
 
-SRAD_V1_clean:
-	cd srad_v1; 	make clean
-	
-SRAD_V2_clean:
-	cd srad_v2; 	make clean
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
+endif
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
+endif
 
+clean:
+	rm -f ${NAME}.nvcc ${NAME}.clang
+
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
+
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \
 
 
