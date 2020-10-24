@@ -1,1 +1,1 @@
-./lavaMD -boxes1d 10
+./lavaMD.clang -boxes1d 10

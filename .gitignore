@@ -3,3 +3,5 @@
 *.o
 *.clang
 *.nvcc
+output.txt
+result.txt
