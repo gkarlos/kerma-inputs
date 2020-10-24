@@ -1,14 +1,31 @@
-include ../../common/make.config
+# original Rodinia CC flags
+CC_FLAGS = -g -O2
 
-CC := $(CUDA_DIR)/bin/nvcc
+NAME=gaussian
 
-INCLUDE := $(CUDA_DIR)/include
+SM=30
+CC=30
 
-SRC = gaussian.cu
-EXE = gaussian
+.PHONY: check-env clang clean nvcc
 
-release: $(SRC)
-	$(CC) $(KERNEL_DIM) $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+all: nvcc clang
+
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
+endif
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
+endif
 
 clean:
-	rm gaussian
+	rm -f ${NAME}.nvcc ${NAME}.clang
+
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
+
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \
+
+

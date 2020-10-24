@@ -1,3 +1,5 @@
 *.ll
 *.log
 *.o
+*.clang
+*.nvcc

@@ -1,44 +1,28 @@
-include ../../common/make.config
+CC_FLAGS = -g -O2
 
-# C compiler
-CC = gcc
-CC_FLAGS = -g  -O2
+NAME=backprop
 
-# CUDA compiler
-NVCC = $(CUDA_DIR)/bin/nvcc
-NVCC_FLAGS = -I$(CUDA_DIR)/include
+SM=30
+CC=30
 
-# 'make dbg=1' enables NVCC debugging
-ifeq ($(dbg),1)
-	NVCC_FLAGS += -g -O0
-else
-	NVCC_FLAGS += -O2
+.PHONY: check-env clang clean nvcc
+
+all: nvcc clang
+
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
 endif
-
-# 'make emu=1' compiles the CUDA kernels for emulation
-ifeq ($(emu),1)
-	NVCC_FLAGS += -deviceemu
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
 endif
-
-
-backprop: backprop.o facetrain.o imagenet.o backprop_cuda.o 
-	$(CC) $(CC_FLAGS) backprop.o facetrain.o imagenet.o backprop_cuda.o -o backprop -L$(CUDA_LIB_DIR) -lcuda -lcudart -lm
-
-%.o: %.[ch]
-	$(CC) $(CC_FLAGS) $< -c
-
-facetrain.o: facetrain.c backprop.h
-	$(CC) $(CC_FLAGS) facetrain.c -c
-	
-backprop.o: backprop.c backprop.h
-	$(CC) $(CC_FLAGS) backprop.c -c
-
-backprop_cuda.o: backprop_cuda.cu backprop.h
-	$(NVCC) $(NVCC_FLAGS) -c backprop_cuda.cu
-
-imagenet.o: imagenet.c backprop.h
-	$(CC) $(CC_FLAGS) imagenet.c -c
-
 
 clean:
-	rm -f *.o *~ backprop backprop_cuda.linkinfo
+	rm -f ${NAME}.nvcc ${NAME}.clang
+
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
+
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \
