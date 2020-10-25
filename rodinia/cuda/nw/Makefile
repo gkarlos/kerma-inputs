@@ -1,24 +1,31 @@
-include ../../common/make.config
+# original Rodinia CC flags
+CC_FLAGS = -g -O2
 
-CC := $(CUDA_DIR)/bin/nvcc
+NAME=nw
 
-INCLUDE := $(CUDA_DIR)/include
+SM=30
+CC=30
 
-SRC = needle.cu
+.PHONY: check-env clang clean nvcc
 
-EXE = needle
+all: nvcc clang
 
-release: $(SRC)
-	$(CC) ${KERNEL_DIM} $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
+endif
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
+endif
 
-enum: $(SRC)
-	$(CC) ${KERNEL_DIM} -deviceemu $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+clean:
+	rm -f ${NAME}.nvcc ${NAME}.clang
 
-debug: $(SRC)
-	$(CC) ${KERNEL_DIM} -g $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
 
-debugenum: $(SRC)
-	$(CC) ${KERNEL_DIM} -g -deviceemu $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \
 
-clean: $(SRC)
-	rm -f $(EXE) $(EXE).linkinfo result.txt
+
