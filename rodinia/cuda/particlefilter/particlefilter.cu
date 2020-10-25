@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <float.h>
+#include <time.h>
 #include <sys/time.h>
 #define PI 3.1415926535897932
 #define BLOCK_X 16
@@ -569,7 +570,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 		
 		//KERNEL FUNCTION CALL
 		kernel <<< num_blocks, threads_per_block >>> (arrayX_GPU, arrayY_GPU, CDF_GPU, u_GPU, xj_GPU, yj_GPU, Nparticles);
-                cudaThreadSynchronize();
+                cudaDeviceSynchronize();
                 long long start_copy_back = get_time();
 		//CUDA memory copying back from GPU to CPU memory
 		cudaMemcpy(yj, yj_GPU, sizeof(double)*Nparticles, cudaMemcpyDeviceToHost);
@@ -614,7 +615,7 @@ void particleFilter(int * I, int IszX, int IszY, int Nfr, int * seed, int Nparti
 }
 int main(int argc, char * argv[]){
 	
-	char* usage = "naive.out -x <dimX> -y <dimY> -z <Nfr> -np <Nparticles>";
+	const char* usage = "naive.out -x <dimX> -y <dimY> -z <Nfr> -np <Nparticles>";
 	//check number of arguments
 	if(argc != 9)
 	{

@@ -1,18 +1,35 @@
-#makefile
+# original Rodinia CC flags
+CC_FLAGS = -g -O2
 
-include ../../common/make.config
+NAME=particlefilter
 
-CC := $(CUDA_DIR)/bin/nvcc
+SM=30
+CC=30
 
-INCLUDE := $(CUDA_DIR)/include
+.PHONY: check-env clang clean nvcc
 
-all: naive float
+all: nvcc clang
 
-naive: ex_particle_CUDA_naive_seq.cu
-	$(CC) -I$(INCLUDE) -L$(CUDA_LIB_DIR) -lcuda -g -lm -O3 -use_fast_math -arch sm_13 ex_particle_CUDA_naive_seq.cu -o particlefilter_naive
-	
-float: ex_particle_CUDA_float_seq.cu
-	$(CC) -I$(INCLUDE) -L$(CUDA_LIB_DIR) -lcuda -g -lm -O3 -use_fast_math -arch sm_13 ex_particle_CUDA_float_seq.cu -o particlefilter_float
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
+endif
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
+endif
 
 clean:
-	rm particlefilter_naive particlefilter_float
+	rm -f ${NAME}.nvcc ${NAME}.clang
+	rm -f ${NAME}.float.nvcc ${NAME}.float.clang
+
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
+	nvcc ${NAME}.float.cu -o ${NAME}.float.nvcc
+
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread
+	${LLVM_HOME}/bin/clang++ ${NAME}.float.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.float.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread
+
+
