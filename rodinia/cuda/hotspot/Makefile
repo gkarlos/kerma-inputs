@@ -1,24 +1,28 @@
-include ../../common/make.config
+CC_FLAGS = -g -O2
 
-CC := $(CUDA_DIR)/bin/nvcc
+NAME=hotspot
 
-INCLUDE := $(CUDA_DIR)/include
+SM=30
+CC=30
 
-SRC = hotspot.cu
+.PHONY: check-env clang clean nvcc
 
-EXE = hotspot
+all: nvcc clang
 
-release: $(SRC)
-	$(CC) $(KERNEL_DIM) $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
+endif
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
+endif
 
-enum: $(SRC)
-	$(CC) $(KERNEL_DIM) -deviceemu $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+clean:
+	rm -f ${NAME}.nvcc ${NAME}.clang
 
-debug: $(SRC)
-	$(CC) $(KERNEL_DIM) -g $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
 
-debugenum: $(SRC)
-	$(CC) $(KERNEL_DIM) -g -deviceemu $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
-
-clean: $(SRC)
-	rm -f $(EXE) $(EXE).linkinfo result.txt
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \
