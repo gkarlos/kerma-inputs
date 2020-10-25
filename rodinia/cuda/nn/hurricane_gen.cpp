@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -29,7 +33,7 @@ int main(int argc, char **argv)
   
   for(j=0;j<num_files;j++)
   {
-    sprintf(fname, "data/cane%d_%d.db", num_files,j);
+    sprintf(fname, "cane%d_%d.db", num_files,j);
     
     if ((fp = fopen(fname, "w")) == NULL) {
 		 fprintf(stderr, "Failed to open output file '%s'!\n", fname);
@@ -61,3 +65,7 @@ int main(int argc, char **argv)
     return 0;
 
   }
+
+#ifdef __cplusplus
+}
+#endif
