@@ -5,3 +5,4 @@
 *.nvcc
 output.txt
 result.txt
+*.db

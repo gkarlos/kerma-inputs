@@ -1,20 +1,32 @@
-include ../../common/make.config
+CC_FLAGS = -g -O2
 
-LOCAL_CC = gcc -g -O3 -Wall
-CC := $(CUDA_DIR)/bin/nvcc
+NAME=nn
 
-all : nn hurricane_gen
+SM=30
+CC=30
 
-clean :
-	rm -rf *.o nn hurricane_gen
+.PHONY: check-env clang clean nvcc
 
-nn : nn_cuda.cu
-	$(CC) -cuda nn_cuda.cu
-	$(CC) -o nn nn_cuda.cu
+all: nvcc clang gen
 
-hurricane_gen : hurricane_gen.c
-	$(LOCAL_CC) -o $@ $< -lm
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
+endif
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
+endif
 
-#data :
-#	mkdir data
-#	./gen_dataset.sh
+clean:
+	rm -f ${NAME}.nvcc ${NAME}.clang gen
+
+gen:
+	${LLVM_HOME}/bin/clang++ hurricane_gen.cpp -o gen -lm
+
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
+
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread
+

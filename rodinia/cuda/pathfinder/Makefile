@@ -1,23 +1,31 @@
-include ../../common/make.config
+# original Rodinia CC flags
+CC_FLAGS = -g -O2
 
-CC := $(CUDA_DIR)/bin/nvcc
-INCLUDE := $(CUDA_DIR)/include
+NAME=pathfinder
 
-SRC = pathfinder.cu
+SM=30
+CC=30
 
-EXE = pathfinder
+.PHONY: check-env clang clean nvcc
 
-release:
-	$(CC) $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+all: nvcc clang
 
-enum:
-	$(CC) -deviceemu $(SRC) -o $(EXE) -I$(INCLUDE) -L$$(CUDA_LIB_DIR) 
-
-debug:
-	$(CC) -g $(SRC) -o $(EXE) -I$(INCLUDE) -L$$(CUDA_LIB_DIR) 
-
-debugenum:
-	$(CC) -g -deviceemu $(SRC) -o $(EXE) -I$(INCLUDE) -L$(CUDA_LIB_DIR) 
+check-env:
+ifndef LLVM_HOME
+	$(error LLVM_HOME is undefined)
+endif
+ifndef CUDA_HOME
+	$(error CUDA_HOME is undefined)
+endif
 
 clean:
-	rm -f pathfinder
+	rm -f ${NAME}.nvcc ${NAME}.clang
+
+nvcc:
+	nvcc ${NAME}.cu -o ${NAME}.nvcc
+
+clang: check-env
+	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \
+
+
