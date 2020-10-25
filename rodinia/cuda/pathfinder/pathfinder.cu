@@ -10,7 +10,7 @@
 #define HALO 1 // halo width along one direction when advancing to the next iteration
 #define M_SEED 9
 
-#define BENCH_PRINT
+// #define BENCH_PRINT 0
 
 void run(int argc, char **argv);
 
@@ -184,15 +184,11 @@ void run(int argc, char **argv) {
 #ifdef BENCH_PRINT
 
   for (int i = 0; i < cols; i++)
-
     printf("%d ", data[i]);
-
   printf("\n");
 
   for (int i = 0; i < cols; i++)
-
     printf("%d ", result[i]);
-
   printf("\n");
 
 #endif
