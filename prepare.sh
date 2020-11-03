@@ -1,3 +1,4 @@
+#!/bin/bash
 set -euo pipefail
 
 for bench in ./rodinia/cuda/*; do
