@@ -4,10 +4,10 @@
 #include <math.h>
 
 #ifdef __NVCC__
-  #include <cuda.h>
-  #include <cuda_runtime.h>
+ #include <cuda.h>
+ #include <cuda_runtime.h>
 #else
-  #include <__clang_cuda_runtime_wrapper.h>
+ #include <__clang_cuda_runtime_wrapper.h>
 #endif
 
 #include <sys/time.h>
