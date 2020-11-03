@@ -1,10 +1,5 @@
 #!/bin/bash
 set -euo pipefail
 
-for bench in ./rodinia/cuda/*; do
-  dirname="$(basename "${bench}")"
-  cd $bench
-  rm -f compile_commands.json
-  bear make clang
-  cd -
-done
+cd rodinia && /bin/bash prepare.sh && cd -
+cd simple && /bin/bash prepare.sh && cd -
