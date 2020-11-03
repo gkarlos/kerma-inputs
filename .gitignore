@@ -8,4 +8,4 @@ result.txt
 *.db
 /.vscode
 compile_commands.json
-.clang/
+.clangd/
