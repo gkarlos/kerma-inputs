@@ -15,7 +15,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#include "../../common/polybenchUtilFuncts.h"
+#include "../polybenchUtilFuncts.h"
 
 // define the error threshold for the results "not matching"
 #define PERCENT_DIFF_ERROR_THRESHOLD 0.05
@@ -119,9 +119,7 @@ __global__ void mm2_kernel2(__attribute__((annotate("2048,2048"))) DATA_TYPE *C,
   }
 }
 
-void mm2_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D,
-             (size_t)ceil(((float)NJ) / ((float)block.x)),
-             (size_t)ceil(((float)NI) / ((float)block.y)) DATA_TYPE *E) {
+void mm2_cpu(DATA_TYPE *A, DATA_TYPE *B, DATA_TYPE *C, DATA_TYPE *D, DATA_TYPE *E) {
   int i, j, k;
 
   for (i = 0; i < NI; i++) {
