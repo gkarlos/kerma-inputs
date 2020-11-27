@@ -119,7 +119,7 @@ bpnn_adjust_weights_cuda(__attribute__((annotate("17"))) float *delta,
                          __attribute__((annotate("640000"))) int in,
                          __attribute__((annotate("17,640001"))) float *w,
                          __attribute__((annotate("17,640001"))) float *oldw)
-    __attribute__((annotate("640001"))) {
+    __attribute__((annotate("1,40000:16,16"))) {
   int by = blockIdx.y;
   int tx = threadIdx.x;
   int ty = threadIdx.y;
