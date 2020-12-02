@@ -128,7 +128,10 @@ void GPU_argv_init() {
   cudaSetDevice(GPU_DEVICE);
 }
 
-__global__ void Convolution2D_kernel(DATA_TYPE *A, DATA_TYPE *B) {
+__global__ void
+Convolution2D_kernel(DATA_TYPE __attribute__((annotate("4096,4096"))) * A,
+                     DATA_TYPE __attribute__((annotate("4096,4096"))) * B)
+    __attribute__((annotate("512,128:8,32"))) {
   int j = blockIdx.x * blockDim.x + threadIdx.x;
   int i = blockIdx.y * blockDim.y + threadIdx.y;
 
