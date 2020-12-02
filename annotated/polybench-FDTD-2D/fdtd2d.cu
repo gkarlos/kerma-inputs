@@ -138,8 +138,13 @@ void GPU_argv_init() {
   cudaSetDevice(GPU_DEVICE);
 }
 
-__global__ void fdtd_step1_kernel(DATA_TYPE *_fict_, DATA_TYPE *ex,
-                                  DATA_TYPE *ey, DATA_TYPE *hz, int t) {
+__global__ void
+fdtd_step1_kernel(DATA_TYPE __attribute__((annotate("500"))) * _fict_,
+                  DATA_TYPE __attribute__((annotate("2048:2049"))) * ex,
+                  DATA_TYPE __attribute__((annotate("2049:2048"))) * ey,
+                  DATA_TYPE __attribute__((annotate("2048:2048"))) * hz,
+                  int __attribute__((annotate("42"))) t)
+    __attribute__((annotate("256,64:8,32"))) {
   int j = blockIdx.x * blockDim.x + threadIdx.x;
   int i = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -153,8 +158,12 @@ __global__ void fdtd_step1_kernel(DATA_TYPE *_fict_, DATA_TYPE *ex,
   }
 }
 
-__global__ void fdtd_step2_kernel(DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz,
-                                  int t) {
+__global__ void
+fdtd_step2_kernel(DATA_TYPE __attribute__((annotate("2048:2049"))) * ex,
+                  DATA_TYPE __attribute__((annotate("2049:2048"))) * ey,
+                  DATA_TYPE __attribute__((annotate("2048:2048"))) * hz,
+                  int __attribute__((annotate("42"))) t)
+    __attribute__((annotate("256,64:8,32"))) {
   int j = blockIdx.x * blockDim.x + threadIdx.x;
   int i = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -164,8 +173,12 @@ __global__ void fdtd_step2_kernel(DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz,
   }
 }
 
-__global__ void fdtd_step3_kernel(DATA_TYPE *ex, DATA_TYPE *ey, DATA_TYPE *hz,
-                                  int t) {
+__global__ void
+fdtd_step3_kernel(DATA_TYPE __attribute__((annotate("2048:2049"))) * ex,
+                  DATA_TYPE __attribute__((annotate("2049:2048"))) * ey,
+                  DATA_TYPE __attribute__((annotate("2048:2048"))) * hz,
+                  int __attribute__((annotate("42"))) t)
+    __attribute__((annotate("256,64:8,32"))) {
   int j = blockIdx.x * blockDim.x + threadIdx.x;
   int i = blockIdx.y * blockDim.y + threadIdx.y;
 
