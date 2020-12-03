@@ -24,5 +24,5 @@ nvcc:
 	nvcc ${NAME}.cu -o ${NAME}.nvcc
 
 clang: check-env
-	${LLVM_HOME}/bin/clang++ ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
+	${LLVM_HOME}/bin/clang++ -O2 ${NAME}.cu --cuda-gpu-arch=sm_$(SM) -o ${NAME}.clang \
 		-L${CUDA_HOME}/lib64 -lcudart_static -ldl -lrt -pthread \

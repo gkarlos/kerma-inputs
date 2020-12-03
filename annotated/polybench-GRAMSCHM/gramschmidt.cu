@@ -132,8 +132,8 @@ __global__ void
 gramschmidt_kernel1(DATA_TYPE __attribute__((annotate("2048:2048"))) * a,
                     DATA_TYPE __attribute__((annotate("2048:2048"))) * r,
                     DATA_TYPE __attribute__((annotate("2048:2048"))) * q,
-                    int __attribute__((annotate("1:1"))) k)
-    __attribute__((annotate("1:1"))) {
+                    int __attribute__((annotate("0"))) k)
+    __attribute__((annotate("1:256"))) {
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid == 0) {
@@ -150,8 +150,8 @@ __global__ void
 gramschmidt_kernel2(DATA_TYPE __attribute__((annotate("2048:2048"))) * a,
                     DATA_TYPE __attribute__((annotate("2048:2048"))) * r,
                     DATA_TYPE __attribute__((annotate("2048:2048"))) * q,
-                    int __attribute__((annotate("1:1"))) k)
-    __attribute__((annotate("1:8"))) {
+                    int __attribute__((annotate("0"))) k)
+    __attribute__((annotate("8:256"))) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (i < M) {
@@ -163,8 +163,8 @@ __global__ void
 gramschmidt_kernel3(DATA_TYPE __attribute__((annotate("2048:2048"))) * a,
                     DATA_TYPE __attribute__((annotate("2048:2048"))) * r,
                     DATA_TYPE __attribute__((annotate("2048:2048"))) * q,
-                    int __attribute__((annotate("1:1"))) k)
-    __attribute__((annotate("1:8"))) {
+                    int __attribute__((annotate("0"))) k)
+    __attribute__((annotate("8:256"))) {
   int j = blockIdx.x * blockDim.x + threadIdx.x;
 
   if ((j > k) && (j < N)) {
@@ -208,6 +208,7 @@ void gramschmidtCuda(DATA_TYPE *A, DATA_TYPE *R, DATA_TYPE *Q,
     cudaDeviceSynchronize();
     gramschmidt_kernel3<<<gridKernel3, block>>>(A_gpu, R_gpu, Q_gpu, k);
     cudaDeviceSynchronize();
+    break;
   }
   t_end = rtclock();
   fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
@@ -221,7 +222,7 @@ void gramschmidtCuda(DATA_TYPE *A, DATA_TYPE *R, DATA_TYPE *Q,
 }
 
 int main(int argc, char *argv[]) {
-  double t_start, t_end;
+  // double t_start, t_end;
 
   DATA_TYPE *A;
   DATA_TYPE *A_outputFromGpu;
@@ -238,13 +239,13 @@ int main(int argc, char *argv[]) {
   GPU_argv_init();
   gramschmidtCuda(A, R, Q, A_outputFromGpu);
 
-  t_start = rtclock();
-  gramschmidt(A, R, Q);
-  t_end = rtclock();
+  // t_start = rtclock();
+  // gramschmidt(A, R, Q);
+  // t_end = rtclock();
 
-  fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
+  // fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start);
 
-  compareResults(A, A_outputFromGpu);
+  // compareResults(A, A_outputFromGpu);
 
   free(A);
   free(A_outputFromGpu);

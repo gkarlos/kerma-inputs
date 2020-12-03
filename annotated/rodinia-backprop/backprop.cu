@@ -341,6 +341,16 @@ extern "C" void load(BPNN *net) {
   }
 }
 
+double rtclock() {
+  struct timezone Tzp;
+  struct timeval Tp;
+  int stat;
+  stat = gettimeofday(&Tp, &Tzp);
+  if (stat != 0)
+    printf("Error return from gettimeofday: %d", stat);
+  return (Tp.tv_sec + Tp.tv_usec * 1.0e-6);
+}
+
 extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   int in, hid, out;
   float out_err, hid_err;
@@ -349,7 +359,6 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   hid = net->hidden_n;
   out = net->output_n;
 
-#ifdef GPU
   int m = 0;
   float *input_hidden_cuda;
   float *input_cuda;
@@ -385,15 +394,7 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaMalloc((void **)&output_hidden_cuda, (hid + 1) * sizeof(float));
   cudaMalloc((void **)&input_hidden_cuda, (in + 1) * (hid + 1) * sizeof(float));
   cudaMalloc((void **)&hidden_partial_sum, num_blocks * WIDTH * sizeof(float));
-#endif
 
-#ifdef CPU
-  printf("Performing CPU computation\n");
-  bpnn_layerforward(net->input_units, net->hidden_units, net->input_weights, in,
-                    hid);
-#endif
-
-#ifdef GPU
   printf("Performing GPU computation\n");
 
   cudaMemcpy(input_cuda, net->input_units, (in + 1) * sizeof(float),
@@ -401,12 +402,15 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaMemcpy(input_hidden_cuda, input_weights_one_dim,
              (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice);
 
+  double t_start = rtclock();
   bpnn_layerforward_CUDA<<<grid, threads>>>(input_cuda, output_hidden_cuda,
                                             input_hidden_cuda,
                                             hidden_partial_sum, in, hid);
 
   // cudaThreadSynchronize();
   cudaDeviceSynchronize();
+  double t_end = rtclock();
+  
 
   cudaError_t error = cudaGetLastError();
 
@@ -426,7 +430,7 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
     sum += net->input_weights[0][j];
     net->hidden_units[j] = float(1.0 / (1.0 + exp(-sum)));
   }
-#endif
+
 
   bpnn_layerforward(net->hidden_units, net->output_units, net->hidden_weights,
                     hid, out);
@@ -437,12 +441,6 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   bpnn_adjust_weights(net->output_delta, out, net->hidden_units, hid,
                       net->hidden_weights, net->hidden_prev_weights);
 
-#ifdef CPU
-  bpnn_adjust_weights(net->hidden_delta, hid, net->input_units, in,
-                      net->input_weights, net->input_prev_weights);
-#endif
-
-#ifdef GPU
 
   cudaMalloc((void **)&hidden_delta_cuda, (hid + 1) * sizeof(float));
   cudaMalloc((void **)&input_prev_weights_cuda,
@@ -455,11 +453,14 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   cudaMemcpy(input_hidden_cuda, input_weights_one_dim,
              (in + 1) * (hid + 1) * sizeof(float), cudaMemcpyHostToDevice);
 
+  double t_start2 = rtclock();
   bpnn_adjust_weights_cuda<<<grid, threads>>>(hidden_delta_cuda, hid,
                                               input_cuda, in, input_hidden_cuda,
                                               input_prev_weights_cuda);
 
   cudaDeviceSynchronize();
+  double t_end2 = rtclock();
+  fprintf(stdout, "GPU Runtime: %0.6lfs\n", (t_end - t_start) + (t_end2 - t_start2));
 
   cudaMemcpy(net->input_units, input_cuda, (in + 1) * sizeof(float),
              cudaMemcpyDeviceToHost);
@@ -476,7 +477,6 @@ extern "C" void bpnn_train_cuda(BPNN *net, float *eo, float *eh) {
   free(partial_sum);
   free(input_weights_one_dim);
   free(input_weights_prev_one_dim);
-#endif
 }
 
 void bpnn_free(BPNN *net) {

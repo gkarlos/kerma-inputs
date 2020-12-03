@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 #ifdef __NVCC__
 #include <cuda.h>
@@ -40,14 +41,14 @@ struct Node {
 };
 
 extern "C" __global__ void
-Kernel(__attribute__((annotate("4096"))) Node *g_graph_nodes,
+Kernel(__attribute__((annotate("65536"))) Node *g_graph_nodes,
        __attribute__((annotate("24576"))) int *g_graph_edges,
-       __attribute__((annotate("4096"))) bool *g_graph_mask,
-       __attribute__((annotate("4096"))) bool *g_updating_graph_mask,
-       __attribute__((annotate("4096"))) bool *g_graph_visited,
-       __attribute__((annotate("4096"))) int *g_cost,
-       __attribute__((annotate("4096"))) int no_of_nodes)
-    __attribute__((annotate("8:512"))) {
+       __attribute__((annotate("393216"))) bool *g_graph_mask,
+       __attribute__((annotate("65536"))) bool *g_updating_graph_mask,
+       __attribute__((annotate("65536"))) bool *g_graph_visited,
+       __attribute__((annotate("65536"))) int *g_cost,
+       __attribute__((annotate("65536"))) int no_of_nodes)
+    __attribute__((annotate("128:512"))) {
   int tid = blockIdx.x * MAX_THREADS_PER_BLOCK + threadIdx.x;
   if (tid < no_of_nodes && g_graph_mask[tid]) {
     g_graph_mask[tid] = false;
@@ -64,12 +65,12 @@ Kernel(__attribute__((annotate("4096"))) Node *g_graph_nodes,
 }
 
 extern "C" __global__ void
-Kernel2(__attribute__((annotate("4096"))) bool *g_graph_mask,
-        __attribute__((annotate("4096"))) bool *g_updating_graph_mask,
-        __attribute__((annotate("4096"))) bool *g_graph_visited,
+Kernel2(__attribute__((annotate("65536"))) bool *g_graph_mask,
+        __attribute__((annotate("65536"))) bool *g_updating_graph_mask,
+        __attribute__((annotate("65536"))) bool *g_graph_visited,
         __attribute__((annotate("1"))) bool *g_over,
-        __attribute__((annotate("4096"))) int no_of_nodes)
-    __attribute__((annotate("8:512"))) {
+        __attribute__((annotate("65536"))) int no_of_nodes)
+    __attribute__((annotate("128:512"))) {
   int tid = blockIdx.x * MAX_THREADS_PER_BLOCK + threadIdx.x;
   if (tid < no_of_nodes && g_updating_graph_mask[tid]) {
 
@@ -93,6 +94,16 @@ int main(int argc, char **argv) {
 
 void Usage(int argc, char **argv) {
   fprintf(stderr, "Usage: %s <input_file>\n", argv[0]);
+}
+
+double rtclock() {
+  struct timezone Tzp;
+  struct timeval Tp;
+  int stat;
+  stat = gettimeofday(&Tp, &Tzp);
+  if (stat != 0)
+    printf("Error return from gettimeofday: %d", stat);
+  return (Tp.tv_sec + Tp.tv_usec * 1.0e-6);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,6 +166,8 @@ void BFSGraph(int argc, char **argv) {
   h_graph_visited[source] = true;
 
   fscanf(fp, "%d", &edge_list_size);
+
+  fprintf(stderr, "num. of edges %d\n", edge_list_size);
 
   int id, cost;
   int *h_graph_edges = (int *)malloc(sizeof(int) * edge_list_size);
@@ -223,6 +236,7 @@ void BFSGraph(int argc, char **argv) {
   printf("Start traversing the tree\n");
   bool stop;
   // Call the Kernel untill all the elements of Frontier are not false
+  double t_start = rtclock();
   do {
     // if no thread changes this value then the loop stops
     stop = false;
@@ -239,6 +253,9 @@ void BFSGraph(int argc, char **argv) {
     cudaMemcpy(&stop, d_over, sizeof(bool), cudaMemcpyDeviceToHost);
     k++;
   } while (stop);
+  cudaDeviceSynchronize();
+  double t_end = rtclock();
+  fprintf(stdout, "GPU Runtime: %0.6lfs\n", (t_end - t_start));
 
   printf("Kernel Executed %d times\n", k);
 

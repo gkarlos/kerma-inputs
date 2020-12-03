@@ -201,12 +201,12 @@ int main(int argc, char *argv[]) {
 
   convolution2DCuda(A, B, B_outputFromGpu);
 
-  t_start = rtclock();
-  conv2D(A, B);
-  t_end = rtclock();
-  fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start); //);
+  // t_start = rtclock();
+  // conv2D(A, B);
+  // t_end = rtclock();
+  // fprintf(stdout, "CPU Runtime: %0.6lfs\n", t_end - t_start); //);
 
-  compareResults(B, B_outputFromGpu);
+  // compareResults(B, B_outputFromGpu);
 
   free(A);
   free(B);
