@@ -128,8 +128,12 @@ void GPU_argv_init() {
   return;
 }
 
-__global__ void gramschmidt_kernel1(DATA_TYPE *a, DATA_TYPE *r, DATA_TYPE *q,
-                                    int k) {
+__global__ void
+gramschmidt_kernel1(DATA_TYPE __attribute__((annotate("2048:2048"))) * a,
+                    DATA_TYPE __attribute__((annotate("2048:2048"))) * r,
+                    DATA_TYPE __attribute__((annotate("2048:2048"))) * q,
+                    int __attribute__((annotate("1:1"))) k)
+    __attribute__((annotate("1:1"))) {
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid == 0) {
@@ -142,8 +146,12 @@ __global__ void gramschmidt_kernel1(DATA_TYPE *a, DATA_TYPE *r, DATA_TYPE *q,
   }
 }
 
-__global__ void gramschmidt_kernel2(DATA_TYPE *a, DATA_TYPE *r, DATA_TYPE *q,
-                                    int k) {
+__global__ void
+gramschmidt_kernel2(DATA_TYPE __attribute__((annotate("2048:2048"))) * a,
+                    DATA_TYPE __attribute__((annotate("2048:2048"))) * r,
+                    DATA_TYPE __attribute__((annotate("2048:2048"))) * q,
+                    int __attribute__((annotate("1:1"))) k)
+    __attribute__((annotate("1:8"))) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (i < M) {
@@ -151,8 +159,12 @@ __global__ void gramschmidt_kernel2(DATA_TYPE *a, DATA_TYPE *r, DATA_TYPE *q,
   }
 }
 
-__global__ void gramschmidt_kernel3(DATA_TYPE *a, DATA_TYPE *r, DATA_TYPE *q,
-                                    int k) {
+__global__ void
+gramschmidt_kernel3(DATA_TYPE __attribute__((annotate("2048:2048"))) * a,
+                    DATA_TYPE __attribute__((annotate("2048:2048"))) * r,
+                    DATA_TYPE __attribute__((annotate("2048:2048"))) * q,
+                    int __attribute__((annotate("1:1"))) k)
+    __attribute__((annotate("1:8"))) {
   int j = blockIdx.x * blockDim.x + threadIdx.x;
 
   if ((j > k) && (j < N)) {
