@@ -64,6 +64,16 @@ euclid(__attribute__((annotate("1000002"))) LatLong *d_locations,
   }
 }
 
+double rtclock() {
+  struct timezone Tzp;
+  struct timeval Tp;
+  int stat;
+  stat = gettimeofday(&Tp, &Tzp);
+  if (stat != 0)
+    printf("Error return from gettimeofday: %d", stat);
+  return (Tp.tv_sec + Tp.tv_usec * 1.0e-6);
+}
+
 /**
  * This program finds the k-nearest neighbors
  **/
@@ -153,12 +163,15 @@ int main(int argc, char *argv[]) {
   cudaMemcpy(d_locations, &locations[0], sizeof(LatLong) * numRecords,
              cudaMemcpyHostToDevice);
 
+  double t_start = rtclock();
   /**
    * Execute kernel
    */
   euclid<<<gridDim, threadsPerBlock>>>(d_locations, d_distances, numRecords,
                                        lat, lng);
   cudaDeviceSynchronize();
+  double t_end = rtclock();
+  fprintf(stdout, "GPU Runtime: %0.6lfs\n", t_end - t_start);
 
   // Copy data from device memory to host memory
   cudaMemcpy(distances, d_distances, sizeof(float) * numRecords,
