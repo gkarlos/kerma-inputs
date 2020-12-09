@@ -48,12 +48,12 @@ int parseCommandline(int argc, char *argv[], char *filename, int *r, float *lat,
  * target position
  */
 __global__ void
-euclid(__attribute__((annotate("1000002"))) LatLong *d_locations,
-       __attribute__((annotate("1000002"))) float *d_distances,
-       __attribute__((annotate("1000002"))) int numRecords,
+euclid(__attribute__((annotate("10000002"))) LatLong *d_locations,
+       __attribute__((annotate("10000002"))) float *d_distances,
+       __attribute__((annotate("10000002"))) int numRecords,
        __attribute__((annotate("30"))) float lat,
        __attribute__((annotate("90"))) float lng)
-    __attribute__((annotate("3907:256"))) {
+    __attribute__((annotate("39063:256"))) {
   int globalId = blockDim.x * (gridDim.x * blockIdx.y + blockIdx.x) +
                  threadIdx.x;
   LatLong *latLong = d_locations + globalId;
